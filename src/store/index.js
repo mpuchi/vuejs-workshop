@@ -14,7 +14,9 @@ const store = {
     pages: 1,
     currentPage: 1,
     loading: false,
-    currentSection: 'discover'
+    currentSection: 'discover',
+    currentMovie: null,
+    imageBasePath: 'http://image.tmdb.org/t/p/w370_and_h556_bestv2'
   },
 
   actions: {
@@ -41,7 +43,17 @@ const store = {
     fetchSavedMovies (context) {
       const savedMovies = localStorage.getItem('savedMovies')
       context.commit('setSavedMovies', JSON.parse(savedMovies))
+    },
+    async fetchCurrentMovie(context, movieId) {
+      context.commit('setLoading', true)
+      const response = await MovieService.getMovie(movieId)
+      context.commit('setCurrentMovie', response.data)
+      context.commit('setLoading', false)
+    },
+    clearCurrentMovie (context) {
+      context.commit('setCurrentMovie', null)
     }
+
   },
 
   mutations: {
@@ -77,6 +89,9 @@ const store = {
         state.savedMovies.splice(movieIndex, 1)
       }
       localStorage.setItem('savedMovies', JSON.stringify(state.savedMovies))
+    },
+    setCurrentMovie (state, movieObject) {
+      state.currentMovie = movieObject
     }
   },
 
@@ -86,12 +101,11 @@ const store = {
         return state.savedMovies
       }
 
-      const imageBasePath = 'http://image.tmdb.org/t/p/w370_and_h556_bestv2'
       return state.movies.map(movie => ({
         id: movie.id,
         title: movie.title,
-        description: movie.description,
-        image: `${imageBasePath}${movie.poster_path}`,
+        description: movie.overview,
+        image: `${state.imageBasePath}${movie.poster_path}`,
         voteAverage: movie.vote_average
       }))
     },
@@ -103,6 +117,18 @@ const store = {
       if (!state.savedMovies)
         return []
       return state.savedMovies.map(movie => movie.id)
+    },
+    singleMovie (state) {
+      if (!state.currentMovie)
+        return {}
+
+      return state.currentMovie
+    },
+    imageURL (state) {
+      if (!state.currentMovie)
+        return ''
+
+      return `${state.imageBasePath}${state.currentMovie.poster_path}`
     }
   }
 }
