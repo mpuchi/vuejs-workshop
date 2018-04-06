@@ -9,7 +9,9 @@
 
     <div class="movie-card-body">
       <div class="text-container">
-        <h4 class="card-title">{{title}}</h4>
+        <router-link :to="{ path: `/movies/${movieObject.id}` }" class="card-title">
+          <h4>{{title}}</h4>
+        </router-link>
         <p class="card-text">{{description}}</p>
       </div>
 
@@ -83,8 +85,12 @@ export default {
         'title': this.title,
         'description': this.description,
         'image': this.image,
+        'friendlyURL': this.title.toLowerCase().replace(/\s/g,'-')
       }
     },
+    friendlyURL () {
+      return this.title.toLowerCase().replace(/\s/g,'-')
+    }
   },
 
   methods: {
@@ -99,6 +105,15 @@ export default {
 </script>
 
 <style scoped>
+.card-title {
+  text-decoration: none;
+  color: white;
+}
+
+.card-title:hover {
+  color: #c3c3c3;
+}
+
 .movie-card {
   width: 100%;
   margin-top: 10px;
@@ -136,6 +151,9 @@ export default {
 }
 .card-text {
   font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .save-btn {
   float: right;
